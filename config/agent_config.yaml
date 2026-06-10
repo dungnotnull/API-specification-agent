@@ -1,0 +1,140 @@
+# speckit-enhanced — Runtime Configuration
+
+agent:
+  name: "speckit-enhanced"
+  version: "1.0.0"
+  data_dir: "./data"
+  models_dir: "./models"
+
+server:
+  host: "0.0.0.0"
+  port: 8020
+  workers: 1
+  reload: false
+
+# LLM API configuration
+llm:
+  provider_priority:
+    - "claude"
+    - "openai"
+    - "ollama"
+  claude:
+    model: "claude-opus-4-8"
+    max_tokens_default: 4096
+    temperature: 0.2
+  openai:
+    model: "gpt-4o"
+    max_tokens_default: 4096
+    temperature: 0.2
+  ollama:
+    base_url: "http://localhost:11434"
+    model: "llama3"
+    max_tokens_default: 4096
+
+# HuggingFace model configuration
+hf_models:
+  cache_dir: "./models"
+  idle_unload_seconds: 600
+  device: "auto"  # auto-detect CUDA/CPU
+  models:
+    codet5p:
+      model_id: "Salesforce/codet5p-770m"
+      task: "code_summarization"
+      enabled: true
+    bge_large:
+      model_id: "BAAI/bge-large-en-v1.5"
+      task: "text_embedding"
+      enabled: true
+    minilm:
+      model_id: "sentence-transformers/all-MiniLM-L6-v2"
+      task: "fast_embedding"
+      enabled: true
+    bge_reranker:
+      model_id: "BAAI/bge-reranker-large"
+      task: "reranking"
+      enabled: true
+
+# NL spec generation settings
+spec_generation:
+  openapi_version: "3.0.3"
+  max_patch_attempts: 3
+  generation_max_tokens: 4096
+  default_base_url: "https://api.example.com/v1"
+  default_api_version: "1.0.0"
+  confidence_threshold: 0.70  # flag below this for human review
+
+# Spec validation settings
+spec_validation:
+  openapi_versions_supported:
+    - "3.0.0"
+    - "3.0.1"
+    - "3.0.2"
+    - "3.0.3"
+    - "3.1.0"
+  gates:
+    STATUS_CODES:
+      severity: "ERROR"
+      description: "Every operation must have ≥1 2xx response"
+    ERROR_SCHEMAS:
+      severity: "ERROR"
+      description: "Error responses must reference reusable error schema"
+    AUTH_COVERAGE:
+      severity: "ERROR"
+      description: "Security scheme must be defined"
+    DESCRIPTIONS:
+      severity: "WARN"
+      description: "All operations and parameters must have descriptions"
+    EXAMPLES:
+      severity: "WARN"
+      description: "At least one example per operation"
+    VERSIONING:
+      severity: "ERROR"
+      description: "info.version must be present"
+    SECURITY_SCHEMES:
+      severity: "ERROR"
+      description: "Declared security scheme names must match definitions"
+
+# Test stub generation settings
+test_stubs:
+  default_framework: "both"  # pytest | jest | both
+  pytest_async_client: "httpx"  # httpx | requests | aiohttp
+  jest_http_client: "axios"  # axios | node-fetch | supertest
+  max_stub_tokens: 5000
+
+# Pattern advisor settings
+pattern_advisor:
+  confidence_threshold: 0.70
+  heuristic_fallback: true
+  faiss_index_size: 50  # max stored past recommendations for retrieval
+
+# Knowledge updater settings
+knowledge_updater:
+  schedule: "weekly"
+  cron: "0 2 * * 0"  # Sunday 02:00
+  arxiv:
+    categories: ["cs.SE", "cs.PL"]
+    max_results: 40
+    lookback_days: 90
+  semantic_scholar:
+    queries:
+      - "OpenAPI specification generation"
+      - "REST API design automation"
+      - "GraphQL schema design"
+      - "API test generation specification"
+      - "natural language to API specification"
+    max_results_per_query: 10
+  github_releases:
+    repos:
+      - "OAI/OpenAPI-Specification"
+      - "swagger-api/swagger-codegen"
+      - "APIDevTools/openapi-typescript"
+      - "stoplightio/spectral"
+      - "pb33f/libopenapi"
+  top_n_per_crawl: 10
+
+# Quality gates for output delivery
+quality_gates:
+  min_validation_score: 0.57   # ≥4/7 gates must pass
+  require_no_error_gates: true  # block output if any ERROR gate fails
+  min_confidence: 0.50          # warn if confidence below this
+  syntax_check_stubs: true      # ast.parse() check on pytest stubs

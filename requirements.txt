@@ -1,0 +1,42 @@
+# speckit-enhanced — Python dependencies (pinned)
+
+# ── Web Framework & CLI ───────────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+click==8.1.7
+pydantic==2.9.2
+python-dotenv==1.0.1
+
+# ── OpenAPI tooling ───────────────────────────────────────────────────────────
+pyyaml==6.0.2
+jsonschema==4.23.0
+openapi-spec-validator==0.7.1
+
+# ── HTTP clients ──────────────────────────────────────────────────────────────
+httpx==0.28.1
+aiohttp==3.11.10
+requests==2.32.3
+
+# ── LLM APIs ─────────────────────────────────────────────────────────────────
+anthropic==0.40.0
+openai==1.57.4
+
+# ── HuggingFace ML ───────────────────────────────────────────────────────────
+transformers==4.47.0
+sentence-transformers==3.3.1
+torch==2.5.1
+numpy==1.26.4
+
+# ── Vector search ─────────────────────────────────────────────────────────────
+faiss-cpu==1.9.0
+
+# ── Scheduler ─────────────────────────────────────────────────────────────────
+apscheduler==3.10.4
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-multipart==0.0.20

@@ -1,0 +1,98 @@
+version: "3.9"
+
+services:
+  speckit-agent:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: speckit-agent
+    ports:
+      - "8020:8020"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3}
+      - PRIVACY_MODE=${PRIVACY_MODE:-false}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - speckit_data:/app/data
+      - speckit_models:/app/models
+    depends_on:
+      ollama:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # GPU variant — enable with: docker-compose --profile gpu up
+  speckit-agent-gpu:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: speckit-agent-gpu
+    profiles: ["gpu"]
+    ports:
+      - "8020:8020"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OLLAMA_BASE_URL=http://ollama-gpu:11434
+      - PRIVACY_MODE=${PRIVACY_MODE:-false}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+    volumes:
+      - speckit_data:/app/data
+      - speckit_models:/app/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: speckit-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # GPU Ollama — enable with: docker-compose --profile gpu up
+  ollama-gpu:
+    image: ollama/ollama:latest
+    container_name: speckit-ollama-gpu
+    profiles: ["gpu"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  speckit_data:
+    name: speckit_data
+  speckit_models:
+    name: speckit_models
+  ollama_models:
+    name: speckit_ollama_models
